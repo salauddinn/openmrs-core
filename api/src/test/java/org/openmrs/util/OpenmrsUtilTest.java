@@ -10,12 +10,10 @@
 package org.openmrs.util;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -32,7 +30,9 @@ import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.openmrs.GlobalProperty;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -53,7 +53,9 @@ public class OpenmrsUtilTest extends BaseContextSensitiveTest {
 	private static GlobalProperty luhnGP = new GlobalProperty(
 	        OpenmrsConstants.GLOBAL_PROPERTY_DEFAULT_PATIENT_IDENTIFIER_VALIDATOR,
 	        OpenmrsConstants.LUHN_IDENTIFIER_VALIDATOR);
-	
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
+
 	/**
 	 * @see org.springframework.test.AbstractTransactionalSpringContextTests#onSetUpInTransaction()
 	 */
@@ -734,5 +736,16 @@ public class OpenmrsUtilTest extends BaseContextSensitiveTest {
 		properties.store(new OutputStreamWriter(expected, utf8), null);
 		
 		assertThat(actual.toByteArray(), is(expected.toByteArray()));
+	}
+
+	/**
+	 * @see OpenmrsUtil#validatePassword(String,String,String)
+	 */
+	@Test
+	@Verifies(value = "should return the translated version of error message for weak password", method = "validatePassword(String,String,String)")
+	public void testTheTranslationOfValidationRuleWeakPassword() throws Exception {
+		expectedException.expect(WeakPasswordException.class);
+		expectedException.expectMessage("Please choose a stronger password");
+		OpenmrsUtil.validatePassword("Admin1234", "Admin1234", "1-8");
 	}
 }

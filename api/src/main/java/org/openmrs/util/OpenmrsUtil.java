@@ -1875,11 +1875,11 @@ public class OpenmrsUtil {
 		}
 		
 		if (password == null) {
-			throw new WeakPasswordException();
+			throw new WeakPasswordException(getMessage("error.password.weak"));
 		}
 		
 		if ("true".equals(userGp) && (password.equals(username) || password.equals(systemId))) {
-			throw new WeakPasswordException();
+			throw new WeakPasswordException(getMessage("error.password.weak"));
 		}
 		
 		if (StringUtils.isNotEmpty(lengthGp)) {
